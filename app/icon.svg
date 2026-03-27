@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" fill="#F7F5F0" rx="3"/>
+  <text
+    x="3" y="26"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-weight="800"
+    font-size="26"
+    fill="#1A1A1A"
+  >H</text>
+  <text
+    x="23" y="26"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-weight="800"
+    font-size="26"
+    fill="#E05A2B"
+  >.</text>
+</svg>

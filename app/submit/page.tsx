@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getCategories } from '@/lib/events'
 import { createClient } from '@/lib/supabase/server'
+import { getSubmissionById } from '@/lib/submissions'
 import SubmitForm from '@/components/SubmitForm'
 
 export const metadata: Metadata = {
@@ -12,24 +13,68 @@ export const metadata: Metadata = {
 export default async function SubmitPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cancelled?: string }>
+  searchParams: Promise<{ cancelled?: string; duplicate_from?: string }>
 }) {
   const params = await searchParams
   const cancelled = params.cancelled === '1'
+  const duplicateFrom = params.duplicate_from ?? null
 
   const [categories, supabase] = await Promise.all([
     getCategories(),
     createClient(),
   ])
 
-  // Pre-fill organiser details if logged in
-  let prefill: { organiser_name?: string; organiser_email?: string } | null = null
+  // Pre-fill organiser details if logged in (or full event data if duplicating)
+  let prefill: {
+    organiser_name?: string
+    organiser_email?: string
+    event_name?: string
+    short_description?: string
+    full_description?: string
+    category_id?: string
+    borough_of_culture?: boolean
+    event_date_start?: string
+    event_date_end?: string
+    start_time?: string
+    end_time?: string
+    venue_name?: string
+    venue_address?: string
+    neighbourhood?: string
+    ticket_price?: string
+    ticket_url?: string
+  } | null = null
+
   try {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (user) {
+    if (user && duplicateFrom) {
+      // Full pre-fill from a previous submission (duplicate flow)
+      const source = await getSubmissionById(duplicateFrom)
+      if (source && source.organiser_id === user.id) {
+        prefill = {
+          organiser_name: source.organiser_name,
+          organiser_email: source.organiser_email,
+          event_name: source.event_name,
+          short_description: source.short_description,
+          full_description: source.full_description ?? '',
+          category_id: source.category_id,
+          borough_of_culture: source.borough_of_culture,
+          // Clear dates — organiser should set new ones for the duplicate
+          event_date_start: '',
+          event_date_end: '',
+          start_time: source.start_time,
+          end_time: source.end_time ?? '',
+          venue_name: source.venue_name,
+          venue_address: source.venue_address,
+          neighbourhood: source.neighbourhood ?? '',
+          ticket_price: source.ticket_price,
+          ticket_url: source.ticket_url ?? '',
+        }
+      }
+    } else if (user) {
+      // Basic pre-fill — organiser name and email only
       const { data: organiser } = await supabase
         .from('organisers')
         .select('full_name, email')

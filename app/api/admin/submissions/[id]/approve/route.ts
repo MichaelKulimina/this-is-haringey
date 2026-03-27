@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { approveSubmission, getSubmissionById } from '@/lib/submissions'
+import { approveSubmission, approveReReview, getSubmissionById } from '@/lib/submissions'
 import { sendApprovalEmail } from '@/lib/email'
 
 export async function POST(
@@ -19,26 +19,38 @@ export async function POST(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  // ── Fetch submission first (need organiser details for email) ───────────────
+  // ── Fetch submission ────────────────────────────────────────────────────────
   const submission = await getSubmissionById(id)
   if (!submission) {
     return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
   }
 
-  if (submission.status !== 'pending' && submission.status !== 'returned') {
+  if (
+    submission.status !== 'pending' &&
+    submission.status !== 'returned' &&
+    submission.status !== 're_review'
+  ) {
     return NextResponse.json(
       { error: `Cannot approve a submission with status '${submission.status}'` },
       { status: 400 }
     )
   }
 
-  // ── Approve + publish ───────────────────────────────────────────────────────
+  // ── Approve ─────────────────────────────────────────────────────────────────
   let eventId: string
+
   try {
-    const result = await approveSubmission(id)
-    eventId = result.eventId
+    if (submission.parent_event_id) {
+      // Re-review: update the existing published event in-place
+      const result = await approveReReview(id)
+      eventId = result.eventId
+    } else {
+      // Normal approval: create a new event record
+      const result = await approveSubmission(id)
+      eventId = result.eventId
+    }
   } catch (err) {
-    console.error('[admin/approve] approveSubmission failed:', err)
+    console.error('[admin/approve] failed:', err)
     return NextResponse.json({ error: 'Failed to approve submission.' }, { status: 500 })
   }
 

@@ -27,7 +27,7 @@ export interface Event {
   organiser_name: string;
   accessibility_info: string | null;
   borough_of_culture: boolean;
-  status: "published" | "withdrawn";
+  status: "published" | "withdrawn" | "withdrawal_requested";
   published_at: string;
   created_at: string;
   updated_at: string;

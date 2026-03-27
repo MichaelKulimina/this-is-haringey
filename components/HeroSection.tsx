@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 
 export default function HeroSection() {
   const router = useRouter();
@@ -30,16 +29,7 @@ export default function HeroSection() {
 
   return (
     <section className="bg-primary text-white py-14 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Borough of Culture badge */}
-        <Link
-          href="/arts-culture?boc=true"
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/90 text-xs font-medium mb-5 hover:bg-white/20 transition-colors"
-        >
-          <span className="w-2 h-2 rounded-full bg-boc inline-block" />
-          Borough of Culture 2027
-        </Link>
-
+      <div className="max-w-6xl mx-auto text-center flex flex-col items-center">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.05] tracking-[-0.04em] mb-3">
           What&apos;s On in Haringey
         </h1>
@@ -49,7 +39,7 @@ export default function HeroSection() {
         </p>
 
         {/* Search bar */}
-        <div className="relative max-w-xl">
+        <div className="relative w-full max-w-xl">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <svg
               className="w-4 h-4 text-muted"

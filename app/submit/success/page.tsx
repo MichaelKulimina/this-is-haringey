@@ -1,11 +1,19 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'Submission received',
 }
 
-export default function SubmitSuccessPage() {
+export default async function SubmitSuccessPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isAuthenticated = !!user
+
   return (
     <div className="max-w-lg mx-auto px-4 sm:px-6 py-16 text-center">
       {/* Icon */}
@@ -45,19 +53,62 @@ export default function SubmitSuccessPage() {
         </p>
         <ol className="space-y-2 text-sm text-foreground">
           <li className="flex gap-3">
-            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              1
+            </span>
             <span>Our team reviews your submission for accuracy and community guidelines</span>
           </li>
           <li className="flex gap-3">
-            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-            <span>If approved, your listing goes live and you&#39;ll receive an email with a link</span>
+            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              2
+            </span>
+            <span>
+              If approved, your listing goes live and you&#39;ll receive an email with a link
+            </span>
           </li>
           <li className="flex gap-3">
-            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-            <span>If we need changes, we&#39;ll email you — resubmitting doesn&#39;t require another payment</span>
+            <span className="w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+              3
+            </span>
+            <span>
+              If we need changes, we&#39;ll email you — resubmitting doesn&#39;t require another
+              payment
+            </span>
           </li>
         </ol>
       </div>
+
+      {/* Account CTA — context-dependent */}
+      {isAuthenticated ? (
+        <div className="mb-6 p-4 rounded-md bg-[#EEF3EF] border border-[#3D5240]/20 text-left">
+          <p className="text-sm font-semibold text-foreground mb-1">Track your listing</p>
+          <p className="text-sm text-muted mb-3">
+            View submission status, edit if returned, and manage all your events in one place.
+          </p>
+          <Link
+            href="/organiser/dashboard"
+            className="inline-block px-4 py-2 rounded-md bg-[#3D5240] text-white text-sm font-semibold hover:bg-[#2d3e30] transition-colors"
+          >
+            Go to my dashboard →
+          </Link>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 rounded-md bg-background border border-border text-left">
+          <p className="text-sm font-semibold text-foreground mb-1">
+            Want to manage this listing?
+          </p>
+          <p className="text-sm text-muted mb-3">
+            Create a free account to track your submission, edit listings if returned, and manage
+            future events without re-entering your details.
+          </p>
+          <Link
+            href="/organiser/register"
+            className="inline-block px-4 py-2 rounded-md bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
+          >
+            Create a free account →
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
         <Link

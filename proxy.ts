@@ -47,7 +47,61 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // ── 2. Content Security Policy (nonce-based) ────────────────────────────────
+  // ── 2. Organiser route protection ───────────────────────────────────────────
+  const ORGANISER_PROTECTED = ['/organiser/dashboard', '/organiser/settings', '/organiser/billing']
+  const ORGANISER_PUBLIC = ['/organiser/login', '/organiser/register']
+
+  if (ORGANISER_PROTECTED.some((p) => pathname.startsWith(p))) {
+    let isAuthenticated = false
+    try {
+      const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        cookies: {
+          getAll() { return request.cookies.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options)
+            })
+          },
+        },
+      })
+      const { data: { user } } = await supabase.auth.getUser()
+      isAuthenticated = !!user
+    } catch {
+      isAuthenticated = false
+    }
+
+    if (!isAuthenticated) {
+      const loginUrl = new URL('/organiser/login', request.url)
+      loginUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  if (ORGANISER_PUBLIC.some((p) => pathname.startsWith(p))) {
+    let isOrganiser = false
+    try {
+      const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        cookies: {
+          getAll() { return request.cookies.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options)
+            })
+          },
+        },
+      })
+      const { data: { user } } = await supabase.auth.getUser()
+      isOrganiser = !!user && user.app_metadata?.role !== 'admin'
+    } catch {
+      isOrganiser = false
+    }
+
+    if (isOrganiser) {
+      return NextResponse.redirect(new URL('/organiser/dashboard', request.url))
+    }
+  }
+
+  // ── 3. Content Security Policy (nonce-based) ────────────────────────────────
   const nonce = crypto.randomUUID()
 
   const isDev = process.env.NODE_ENV === 'development'

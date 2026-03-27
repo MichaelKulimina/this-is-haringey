@@ -170,6 +170,53 @@ export async function sendReturnEmail(
   }
 }
 
+export async function sendReReviewNotification(
+  eventName: string,
+  submissionId: string
+): Promise<void> {
+  if (!ADMIN) {
+    console.warn('[email] ADMIN_EMAIL not set — skipping re-review notification')
+    return
+  }
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to: ADMIN,
+      subject: `Re-review requested: ${eventName}`,
+      html: wrap(`
+        ${h1('Re-review requested')}
+        ${p(`An organiser has submitted changes to <strong>${eventName}</strong> for re-review.`)}
+        ${p('The existing published listing remains live until you approve this re-review submission.')}
+        <p style="margin:0 0 24px;">${cta(`${BASE_URL}/admin/submissions/${submissionId}`, 'Review changes →')}</p>
+      `),
+    })
+  } catch (err) {
+    console.error('[email] sendReReviewNotification failed:', err)
+  }
+}
+
+export async function sendWithdrawalConfirmedEmail(
+  to: string,
+  eventName: string
+): Promise<void> {
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to,
+      subject: `Your listing has been withdrawn — ${eventName}`,
+      html: wrap(`
+        ${h1('Your listing has been withdrawn')}
+        ${p(`<strong>${eventName}</strong> has been removed from This Is Haringey as requested.`)}
+        ${p('If you wish to relist this event in the future, you can submit a new listing at any time.')}
+        <p style="margin:0 0 24px;">${cta(`${BASE_URL}/submit`, 'Submit a new listing →')}</p>
+        ${p('— The This Is Haringey team')}
+      `),
+    })
+  } catch (err) {
+    console.error('[email] sendWithdrawalConfirmedEmail failed:', err)
+  }
+}
+
 export async function sendRejectionEmail(
   to: string,
   eventName: string,

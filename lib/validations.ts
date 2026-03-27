@@ -86,6 +86,23 @@ export const SubmissionFormSchema = SubmissionStep1Schema.and(SubmissionStep2Sch
 
 export type SubmissionFormData = z.infer<typeof SubmissionFormSchema>
 
+// ─── Edit schema (for returned/re-review submissions — no privacy_consent) ────
+
+export const SubmissionEditSchema = SubmissionStep1Schema.and(SubmissionStep2Schema)
+  .and(SubmissionStep3Schema)
+  .and(
+    z.object({
+      organiser_name: z.string().min(1, 'Organiser name is required'),
+      organiser_email: z
+        .string()
+        .min(1, 'Email address is required')
+        .email('Please enter a valid email address'),
+      accessibility_info: z.string().optional(),
+    })
+  )
+
+export type SubmissionEditData = z.infer<typeof SubmissionEditSchema>
+
 // ─── Admin action schema ───────────────────────────────────────────────────────
 
 export const AdminActionSchema = z.object({
