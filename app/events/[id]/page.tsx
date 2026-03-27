@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import MapEmbed from "@/components/MapEmbed";
 import SubscriptionWidget from "@/components/SubscriptionWidget";
 import { getEventById, getCategories } from "@/lib/events";
-import { CATEGORY_COLOURS } from "@/lib/types";
+import { CATEGORY_COLOURS, CATEGORY_TAG_COLOURS } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +57,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   const categorySlug = event.category?.slug ?? "";
   const placeholderColour = CATEGORY_COLOURS[categorySlug] ?? "bg-primary-light";
+  const tagColours = CATEGORY_TAG_COLOURS[categorySlug];
 
   return (
     <div>
@@ -112,37 +113,49 @@ export default async function EventDetailPage({ params }: PageProps) {
 
         {/* Event header */}
         <div className="mb-8">
+          {/* Badges — DLS tag spec */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {event.category && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-light text-primary">
+            {event.category && tagColours && (
+              <span
+                className="inline-flex items-center text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full"
+                style={{ backgroundColor: tagColours.bg, color: tagColours.text }}
+              >
                 {event.category.name}
               </span>
             )}
             {event.borough_of_culture && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-boc-light text-boc">
+              <span className="inline-flex items-center text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full bg-boc-light text-boc">
                 BoC 2027
               </span>
             )}
             {event.ticket_price.toLowerCase().trim() === "free" && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+              <span className="inline-flex items-center text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full bg-sage-10 text-sage">
                 Free
               </span>
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground leading-tight mb-4">
+          {/* H1 — DLS: 800, −0.04em, 1.05 */}
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-[-0.04em] leading-[1.05] mb-4">
             {event.event_name}
           </h1>
 
+          {/* Date / time — Lucide-style inline icons */}
           <div className="flex flex-wrap gap-4 text-sm text-muted">
-            <span>
-              📅 {formatDate(event.event_date_start)}
+            <span className="inline-flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {formatDate(event.event_date_start)}
               {event.event_date_end &&
                 event.event_date_end !== event.event_date_start &&
                 ` – ${formatDate(event.event_date_end)}`}
             </span>
-            <span>
-              🕐 {formatTime(event.start_time)}
+            <span className="inline-flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {formatTime(event.start_time)}
               {event.end_time && ` – ${formatTime(event.end_time)}`}
             </span>
           </div>
@@ -163,8 +176,11 @@ export default async function EventDetailPage({ params }: PageProps) {
 
             {event.accessibility_info && (
               <div className="p-4 bg-background rounded-lg border border-border">
-                <h3 className="text-sm font-semibold text-foreground mb-1">
-                  ♿ Accessibility
+                <h3 className="text-sm font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+                  </svg>
+                  Accessibility
                 </h3>
                 <p className="text-sm text-muted">{event.accessibility_info}</p>
               </div>
@@ -176,7 +192,12 @@ export default async function EventDetailPage({ params }: PageProps) {
             {/* Venue card */}
             <div className="p-4 bg-surface border border-border rounded-lg space-y-3">
               <div>
-                <h3 className="text-sm font-semibold text-foreground">📍 Venue</h3>
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  Venue
+                </h3>
                 <p className="text-sm text-foreground mt-1">{event.venue_name}</p>
                 <p className="text-sm text-muted">{event.venue_address}</p>
                 {event.neighbourhood && (
@@ -188,14 +209,19 @@ export default async function EventDetailPage({ params }: PageProps) {
 
             {/* Ticket/price */}
             <div className="p-4 bg-surface border border-border rounded-lg">
-              <h3 className="text-sm font-semibold text-foreground mb-2">🎟 Tickets</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/>
+                </svg>
+                Tickets
+              </h3>
               <p className="text-sm text-foreground mb-3">{event.ticket_price}</p>
               {event.ticket_url && (
                 <a
                   href={event.ticket_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center px-4 py-2.5 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary-dark transition-colors"
+                  className="inline-flex w-full items-center justify-center px-4 py-2.5 bg-primary text-white rounded-md text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors"
                 >
                   Book tickets ↗
                 </a>

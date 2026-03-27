@@ -70,7 +70,7 @@ export default function SubscriptionWidget({
 
   return (
     <div className="bg-surface border border-border rounded-2xl p-6 sm:p-8">
-      <h2 className="text-xl font-semibold text-foreground mb-1">
+      <h2 className="text-xl font-bold text-foreground tracking-[-0.03em] mb-1">
         Never miss what&apos;s on
       </h2>
       <p className="text-muted text-sm mb-6">
@@ -138,7 +138,7 @@ export default function SubscriptionWidget({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full sm:w-auto px-6 py-2.5 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60"
+          className="w-full sm:w-auto px-6 py-2.5 bg-primary text-white rounded-md text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors disabled:opacity-60"
         >
           {submitting ? "Subscribing…" : "Subscribe"}
         </button>

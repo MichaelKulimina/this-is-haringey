@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // sharp uses native binaries — must not be bundled by webpack
+  serverExternalPackages: ["sharp"],
 };
 
 export default nextConfig;

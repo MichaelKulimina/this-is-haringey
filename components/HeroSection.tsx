@@ -40,7 +40,7 @@ export default function HeroSection() {
           Borough of Culture 2027
         </Link>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight tracking-tight mb-3">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.05] tracking-[-0.04em] mb-3">
           What&apos;s On in Haringey
         </h1>
         <p className="text-white/75 text-base sm:text-lg max-w-xl mb-8">
@@ -70,7 +70,7 @@ export default function HeroSection() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search events..."
-            className="w-full pl-10 pr-4 py-3 rounded-xl bg-white text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="w-full pl-10 pr-4 py-3 rounded-md bg-white text-foreground placeholder:text-muted text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
           />
         </div>
       </div>

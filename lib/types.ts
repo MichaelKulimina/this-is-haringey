@@ -33,6 +33,15 @@ export interface Event {
   updated_at: string;
 }
 
+// Category slugs → DLS tag colours (DLS § 3 — Colour in Use)
+export const CATEGORY_TAG_COLOURS: Record<string, { bg: string; text: string }> = {
+  "arts-culture":   { bg: "#F0EDE6", text: "#555555" },
+  "music":          { bg: "#F0EDE6", text: "#555555" },
+  "community":      { bg: "#EEF3EF", text: "#3D5240" },
+  "food-drink":     { bg: "#FDF5F1", text: "#B84520" },
+  "learning-talks": { bg: "#F0EDE6", text: "#555555" },
+};
+
 // Category slugs → accent colour mapping for placeholder tiles
 export const CATEGORY_COLOURS: Record<string, string> = {
   "arts-culture": "bg-cat-arts",

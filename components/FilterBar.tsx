@@ -43,7 +43,7 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
             <div className="flex flex-wrap gap-2 flex-1">
               <button
                 onClick={() => updateParam("category", "")}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                   !currentCategory
                     ? "bg-primary text-white"
                     : "bg-background text-muted hover:bg-primary-light hover:text-primary"
@@ -55,7 +55,7 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
                 <button
                   key={cat.id}
                   onClick={() => updateParam("category", cat.slug)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                     currentCategory === cat.slug
                       ? "bg-primary text-white"
                       : "bg-background text-muted hover:bg-primary-light hover:text-primary"
@@ -72,7 +72,7 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
             <select
               value={currentDate}
               onChange={(e) => updateParam("date", e.target.value)}
-              className="text-sm border border-border rounded-full px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"
+              className="text-sm border border-border rounded-md px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"
             >
               {DATE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -84,7 +84,7 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
             <select
               value={currentArea}
               onChange={(e) => updateParam("area", e.target.value)}
-              className="text-sm border border-border rounded-full px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"
+              className="text-sm border border-border rounded-md px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"
             >
               <option value="">All areas</option>
               {HARINGEY_AREAS.map((area) => (

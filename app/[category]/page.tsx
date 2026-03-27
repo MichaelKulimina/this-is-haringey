@@ -5,7 +5,7 @@ import FilterBar from "@/components/FilterBar";
 import EventGrid from "@/components/EventGrid";
 import SubscriptionWidget from "@/components/SubscriptionWidget";
 import { getPublishedEvents, getCategories } from "@/lib/events";
-import { CATEGORY_DESCRIPTIONS, CATEGORY_COLOURS } from "@/lib/types";
+import { CATEGORY_DESCRIPTIONS } from "@/lib/types";
 
 // Only match the 5 known category slugs — everything else returns 404
 const VALID_SLUGS = [
@@ -54,18 +54,17 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     q: filters.q,
   });
 
-  const accentClass = CATEGORY_COLOURS[slug] ?? "bg-primary";
   const description = CATEGORY_DESCRIPTIONS[slug] ?? "";
 
   return (
     <>
-      {/* Category header strip */}
-      <div className={`${accentClass} py-10 px-4 sm:px-6`}>
+      {/* Category header strip — Ink background (DLS approved) */}
+      <div className="bg-ink py-10 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] mb-2">
             {cat.name}
           </h1>
-          <p className="text-white/80 text-sm max-w-xl">{description}</p>
+          <p className="text-white/70 text-sm max-w-xl">{description}</p>
         </div>
       </div>
 

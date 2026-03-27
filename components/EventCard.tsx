@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Event, CATEGORY_COLOURS } from "@/lib/types";
+import { Event, CATEGORY_COLOURS, CATEGORY_TAG_COLOURS } from "@/lib/types";
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr + "T00:00:00"); // treat as local date
@@ -39,13 +39,15 @@ export default function EventCard({ event }: EventCardProps) {
   const isFree = event.ticket_price.toLowerCase().trim() === "free";
   const thisWeek = isThisWeek(event.event_date_start);
 
+  const tagColours = CATEGORY_TAG_COLOURS[categorySlug];
+
   return (
     <Link
       href={`/events/${event.id}`}
-      className="group block bg-surface rounded-lg border border-border overflow-hidden hover:shadow-sm transition-shadow"
+      className="group block bg-surface rounded-lg border border-border overflow-hidden hover:shadow-[0_4px_16px_rgba(0,0,0,0.07)] hover:-translate-y-0.5 transition-[transform,box-shadow] duration-150"
     >
       {/* Image / Placeholder */}
-      <div className="relative w-full aspect-video overflow-hidden">
+      <div className="relative w-full aspect-[4/3] overflow-hidden">
         {event.image_thumb_url ? (
           <Image
             src={event.image_thumb_url}
@@ -87,9 +89,21 @@ export default function EventCard({ event }: EventCardProps) {
 
       {/* Card body */}
       <div className="p-4">
-        <h3 className="font-medium text-foreground leading-snug line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+        {/* Category tag — DLS Label spec */}
+        {event.category && tagColours && (
+          <span
+            className="inline-block text-[11px] font-semibold tracking-[0.10em] uppercase px-2.5 py-1 rounded-full mb-2"
+            style={{ backgroundColor: tagColours.bg, color: tagColours.text }}
+          >
+            {event.category.name}
+          </span>
+        )}
+
+        {/* H3 — DLS: 700, −0.02em, 1.2 line-height */}
+        <h3 className="font-bold text-foreground leading-[1.2] tracking-[-0.02em] line-clamp-2 mb-2">
           {event.event_name}
         </h3>
+
         <div className="space-y-1 text-sm text-muted">
           <p>
             {formatDate(event.event_date_start)}
@@ -98,9 +112,6 @@ export default function EventCard({ event }: EventCardProps) {
             {event.end_time && ` – ${formatTime(event.end_time)}`}
           </p>
           <p className="truncate">{event.venue_name}</p>
-          {event.category && (
-            <p className="text-xs">{event.category.name}</p>
-          )}
         </div>
       </div>
     </Link>

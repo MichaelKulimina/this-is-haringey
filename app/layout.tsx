@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -23,25 +30,27 @@ function Nav() {
   return (
     <header className="sticky top-0 z-50 bg-surface border-b border-border">
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* Wordmark */}
-        <Link
-          href="/"
-          className="text-lg font-semibold text-foreground tracking-tight hover:text-primary transition-colors"
-        >
-          This Is Haringey
+        {/* Inline logotype — DLS § 2 */}
+        <Link href="/" className="flex flex-col leading-none select-none">
+          <span className="text-[11px] font-semibold tracking-[0.20em] uppercase text-primary">
+            This Is
+          </span>
+          <span className="text-[22px] font-extrabold tracking-[-0.04em] text-foreground">
+            Haringey<span className="text-primary">.</span>
+          </span>
         </Link>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
           <Link
             href="/submit"
-            className="hidden sm:inline-flex items-center px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+            className="hidden sm:inline-flex items-center px-4 py-2 rounded-md bg-primary text-white text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors"
           >
             Submit an event
           </Link>
           <Link
             href="/organiser/login"
-            className="text-sm text-muted hover:text-foreground transition-colors"
+            className="text-sm font-medium text-muted hover:text-foreground transition-colors"
           >
             Sign in
           </Link>
@@ -58,8 +67,15 @@ function Footer() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           {/* Brand */}
           <div>
-            <p className="font-semibold text-foreground">This Is Haringey</p>
-            <p className="text-sm text-muted mt-1">
+            <div className="flex flex-col leading-none select-none mb-2">
+              <span className="text-[10px] font-semibold tracking-[0.20em] uppercase text-primary">
+                This Is
+              </span>
+              <span className="text-lg font-extrabold tracking-[-0.04em] text-foreground">
+                Haringey<span className="text-primary">.</span>
+              </span>
+            </div>
+            <p className="text-sm text-muted">
               Your guide to events in the London Borough of Haringey
             </p>
             <p className="text-sm text-boc mt-1 font-medium">
@@ -96,7 +112,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`h-full ${inter.variable}`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
         <Nav />
         <main className="flex-1">{children}</main>
