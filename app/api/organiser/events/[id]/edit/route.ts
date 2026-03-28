@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createReReviewSubmission } from '@/lib/submissions'
 import { sendReReviewNotification } from '@/lib/email'
-import { SubmissionEditSchema } from '@/lib/validations'
+import { ReReviewSchema } from '@/lib/validations'
 
 export async function POST(
   request: NextRequest,
@@ -26,7 +26,7 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const parsed = SubmissionEditSchema.safeParse(body)
+  const parsed = ReReviewSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
       { error: 'Validation failed', issues: parsed.error.flatten() },

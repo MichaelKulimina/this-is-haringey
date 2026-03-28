@@ -9,6 +9,7 @@ import {
 import MyListingsTable from '@/components/organiser/MyListingsTable'
 import BillingHistory from '@/components/organiser/BillingHistory'
 import AccountSettings from '@/components/organiser/AccountSettings'
+import VerifiedBanner from '@/components/organiser/VerifiedBanner'
 
 export const metadata: Metadata = { title: 'My listings — This Is Haringey' }
 
@@ -30,6 +31,8 @@ export default async function OrganiserDashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+      <VerifiedBanner />
+
       {/* My listings */}
       <section>
         <div className="flex items-center justify-between mb-4">

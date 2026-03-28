@@ -103,6 +103,19 @@ export const SubmissionEditSchema = SubmissionStep1Schema.and(SubmissionStep2Sch
 
 export type SubmissionEditData = z.infer<typeof SubmissionEditSchema>
 
+// ─── Re-review schema (live event edits — organiser_email sourced server-side) ─
+
+export const ReReviewSchema = SubmissionStep1Schema.and(SubmissionStep2Schema)
+  .and(SubmissionStep3Schema)
+  .and(
+    z.object({
+      organiser_name: z.string().min(1, 'Organiser name is required'),
+      accessibility_info: z.string().optional(),
+    })
+  )
+
+export type ReReviewData = z.infer<typeof ReReviewSchema>
+
 // ─── Admin action schema ───────────────────────────────────────────────────────
 
 export const AdminActionSchema = z.object({

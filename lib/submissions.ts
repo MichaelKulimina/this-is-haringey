@@ -26,7 +26,7 @@ export interface Submission {
   organiser_email: string
   accessibility_info: string | null
   borough_of_culture: boolean
-  status: 'awaiting_payment' | 'pending' | 'approved' | 'returned' | 'rejected' | 'withdrawn' | 're_review'
+  status: 'awaiting_payment' | 'pending' | 'approved' | 'returned' | 'rejected' | 'withdrawn' | 're_review' | 'withdrawal_requested'
   parent_event_id: string | null
   admin_feedback: string | null
   stripe_payment_intent_id: string | null
@@ -227,14 +227,36 @@ export interface Payment {
 export async function getOrganiserSubmissions(userId: string): Promise<Submission[]> {
   const db = createServiceClient()
 
+  // Exclude re-review submissions — they are change requests, not listings
   const { data, error } = await db
     .from('submissions')
     .select('*, category:categories(id, name, slug)')
     .eq('organiser_id', userId)
+    .is('parent_event_id', null)
     .order('created_at', { ascending: false })
 
   if (error) throw new Error(`getOrganiserSubmissions failed: ${error.message}`)
-  return (data ?? []) as Submission[]
+  const submissions = (data ?? []) as Submission[]
+
+  // For approved submissions, overlay the linked event's status so the
+  // organiser sees withdrawal_requested / withdrawn instead of "Live"
+  const approvedIds = submissions.filter(s => s.status === 'approved').map(s => s.id)
+  if (approvedIds.length === 0) return submissions
+
+  const { data: events } = await db
+    .from('events')
+    .select('submission_id, status')
+    .in('submission_id', approvedIds)
+
+  const eventStatusMap = new Map((events ?? []).map(e => [e.submission_id, e.status]))
+
+  return submissions.map(s => {
+    const evStatus = eventStatusMap.get(s.id)
+    if (evStatus && evStatus !== 'published') {
+      return { ...s, status: evStatus as Submission['status'] }
+    }
+    return s
+  })
 }
 
 export async function getOrganiserPayments(userId: string): Promise<Payment[]> {
@@ -336,16 +358,22 @@ export async function resubmitSubmission(
 }
 
 export async function requestWithdrawal(
-  eventId: string,
+  submissionId: string,
   userId: string
 ): Promise<void> {
   const db = createServiceClient()
 
-  const { data: event, error: fetchError } = await db
-    .from('events')
-    .select('id, organiser_id, status')
-    .eq('id', eventId)
+  // Resolve submission to find its parent_event_id (re-review) or look up
+  // the event directly via events.submission_id (original submission)
+  const { data: submission } = await db
+    .from('submissions')
+    .select('id, parent_event_id')
+    .eq('id', submissionId)
     .single()
+
+  const { data: event, error: fetchError } = submission?.parent_event_id
+    ? await db.from('events').select('id, organiser_id, status').eq('id', submission.parent_event_id).single()
+    : await db.from('events').select('id, organiser_id, status').eq('submission_id', submissionId).single()
 
   if (fetchError || !event) throw new Error('Event not found')
   if (event.organiser_id !== userId) throw new Error('Forbidden')
@@ -354,7 +382,7 @@ export async function requestWithdrawal(
   const { error } = await db
     .from('events')
     .update({ status: 'withdrawal_requested' })
-    .eq('id', eventId)
+    .eq('id', event.id)
 
   if (error) throw new Error(`requestWithdrawal failed: ${error.message}`)
 }
@@ -362,19 +390,28 @@ export async function requestWithdrawal(
 export async function createReReviewSubmission(
   eventId: string,
   userId: string,
-  data: SubmissionFormData & { image_url?: string | null; image_thumb_url?: string | null }
+  data: Omit<SubmissionFormData, 'organiser_email'> & { image_url?: string | null; image_thumb_url?: string | null }
 ): Promise<{ id: string }> {
   const db = createServiceClient()
 
   // Verify the event belongs to this organiser
   const { data: event, error: fetchError } = await db
     .from('events')
-    .select('id, organiser_id, organiser_name, organiser_email')
+    .select('id, organiser_id')
     .eq('id', eventId)
     .single()
 
   if (fetchError || !event) throw new Error('Event not found')
   if (event.organiser_id !== userId) throw new Error('Forbidden')
+
+  // Fetch organiser email from the organisers table
+  const { data: organiser } = await db
+    .from('organisers')
+    .select('email')
+    .eq('id', userId)
+    .single()
+
+  const organiserEmail = organiser?.email ?? ''
 
   const { data: row, error } = await db
     .from('submissions')
@@ -396,7 +433,7 @@ export async function createReReviewSubmission(
       ticket_url: data.ticket_url ?? null,
       organiser_id: userId,
       organiser_name: data.organiser_name,
-      organiser_email: data.organiser_email,
+      organiser_email: organiserEmail,
       accessibility_info: data.accessibility_info ?? null,
       borough_of_culture: data.borough_of_culture,
       status: 're_review',
@@ -470,12 +507,18 @@ export async function confirmWithdrawal(
 
   const { data: event, error: fetchError } = await db
     .from('events')
-    .select('id, organiser_email, event_name, status')
+    .select('id, organiser_id, event_name, status')
     .eq('id', eventId)
     .single()
 
   if (fetchError || !event) throw new Error('Event not found')
   if (event.status !== 'withdrawal_requested') throw new Error('Event is not awaiting withdrawal')
+
+  const { data: organiser } = await db
+    .from('organisers')
+    .select('email')
+    .eq('id', event.organiser_id)
+    .single()
 
   const { error } = await db
     .from('events')
@@ -485,7 +528,7 @@ export async function confirmWithdrawal(
   if (error) throw new Error(`confirmWithdrawal failed: ${error.message}`)
 
   return {
-    organiser_email: event.organiser_email,
+    organiser_email: organiser?.email ?? '',
     event_name: event.event_name,
   }
 }
@@ -515,10 +558,19 @@ export async function getWithdrawalRequestsForAdmin(): Promise<
 
   const { data, error } = await db
     .from('events')
-    .select('id, event_name, organiser_name, organiser_email, organiser_id, published_at, updated_at')
+    .select('id, event_name, organiser_name, organiser_id, published_at, updated_at, organiser:organisers(email)')
     .eq('status', 'withdrawal_requested')
     .order('updated_at', { ascending: false })
 
   if (error) throw new Error(`getWithdrawalRequestsForAdmin failed: ${error.message}`)
-  return data ?? []
+
+  return (data ?? []).map((e) => ({
+    id: e.id,
+    event_name: e.event_name,
+    organiser_name: e.organiser_name,
+    organiser_email: (e.organiser as { email?: string } | null)?.email ?? '',
+    organiser_id: e.organiser_id,
+    published_at: e.published_at,
+    updated_at: e.updated_at,
+  }))
 }

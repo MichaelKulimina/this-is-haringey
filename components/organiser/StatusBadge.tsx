@@ -30,6 +30,10 @@ const STATUS_CONFIG: Record<
     label: 'Rejected',
     className: 'bg-red-100 text-red-700',
   },
+  withdrawal_requested: {
+    label: 'Withdrawal pending',
+    className: 'bg-amber-100 text-amber-800',
+  },
   withdrawn: {
     label: 'Withdrawn',
     className: 'bg-gray-100 text-gray-500',

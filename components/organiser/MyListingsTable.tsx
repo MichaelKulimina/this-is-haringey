@@ -155,7 +155,8 @@ export default function MyListingsTable({ submissions }: Props) {
                     {(sub.status === 'approved' ||
                       sub.status === 'returned' ||
                       sub.status === 'rejected' ||
-                      sub.status === 'withdrawn') && (
+                      sub.status === 'withdrawn' ||
+                      sub.status === 'withdrawal_requested') && (
                       <Link
                         href={`/submit?duplicate_from=${sub.id}`}
                         className="px-3 py-1 rounded-md border border-border text-xs font-medium text-muted hover:text-foreground transition-colors"

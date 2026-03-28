@@ -13,7 +13,9 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const hasVerifyError = searchParams.get('error') === '1'
+  const errorParam = searchParams.get('error')
+  const hasVerifyError = errorParam === '1'
+  const hasExpiredError = errorParam === 'expired'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,6 +48,14 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {hasExpiredError && (
+        <div className="p-3 rounded-md bg-[#FDF5F1] border border-primary/20 text-sm text-primary">
+          That verification link has expired. Please{' '}
+          <a href="/organiser/register" className="underline font-medium">register again</a>{' '}
+          to receive a new one.
+        </div>
+      )}
+
       {hasVerifyError && (
         <div className="p-3 rounded-md bg-[#FDF5F1] border border-primary/20 text-sm text-primary">
           Email verification failed. Please try again or contact us for help.

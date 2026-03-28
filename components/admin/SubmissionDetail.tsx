@@ -8,6 +8,7 @@ import type { Submission } from '@/lib/submissions'
 const STATUS_STYLES: Record<string, string> = {
   awaiting_payment: 'bg-gray-100 text-gray-500',
   pending: 'bg-amber-100 text-amber-800',
+  re_review: 'bg-amber-100 text-amber-800',
   approved: 'bg-[#EEF3EF] text-[#3D5240]',
   returned: 'bg-[#FDF5F1] text-[#B84520]',
   rejected: 'bg-red-100 text-red-700',
@@ -66,7 +67,11 @@ export default function SubmissionDetail({ submission }: { submission: Submissio
 
       if (type === 'approve') {
         setStatus('approved')
-        setSuccessMsg('Submission approved and listing published.')
+        setSuccessMsg(
+          submission.parent_event_id
+            ? 'Re-review approved. The live listing has been updated.'
+            : 'Submission approved and listing published.'
+        )
       } else if (type === 'return') {
         setStatus('returned')
         setSuccessMsg('Submission returned to organiser with feedback.')
@@ -209,7 +214,7 @@ export default function SubmissionDetail({ submission }: { submission: Submissio
           {!isResolved && status !== 'awaiting_payment' && (
             <div className="space-y-3">
               {/* Approve */}
-              {status === 'pending' || status === 'returned' ? (
+              {status === 'pending' || status === 'returned' || status === 're_review' ? (
                 <div className="bg-surface border border-border rounded-lg p-4">
                   <p className="text-sm font-semibold text-foreground mb-3">Approve</p>
                   <button

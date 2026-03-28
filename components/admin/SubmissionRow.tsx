@@ -4,6 +4,7 @@ import type { Submission } from '@/lib/submissions'
 const STATUS_STYLES: Record<string, string> = {
   awaiting_payment: 'bg-gray-100 text-gray-500',
   pending: 'bg-amber-100 text-amber-800',
+  re_review: 'bg-amber-100 text-amber-800',
   approved: 'bg-[#EEF3EF] text-[#3D5240]',
   returned: 'bg-[#FDF5F1] text-[#B84520]',
   rejected: 'bg-red-100 text-red-700',
@@ -13,6 +14,7 @@ const STATUS_STYLES: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   awaiting_payment: 'Awaiting payment',
   pending: 'Pending',
+  re_review: 'Re-review',
   approved: 'Approved',
   returned: 'Returned',
   rejected: 'Rejected',
