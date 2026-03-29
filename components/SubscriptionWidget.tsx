@@ -138,7 +138,7 @@ export default function SubscriptionWidget({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full sm:w-auto px-6 py-2.5 bg-primary text-white rounded-md text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors disabled:opacity-60"
+          className="w-full sm:w-auto px-6 py-2.5 bg-primary text-white rounded-md text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
         >
           {submitting ? "Subscribing…" : "Subscribe"}
         </button>

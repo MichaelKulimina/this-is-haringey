@@ -43,9 +43,29 @@ export default function SubmissionDetail({ submission }: { submission: Submissio
   const [status, setStatus] = useState(submission.status)
   const [feedback, setFeedback] = useState('')
   const [reason, setReason] = useState('')
-  const [loading, setLoading] = useState<'approve' | 'return' | 'reject' | null>(null)
+  const [loading, setLoading] = useState<'approve' | 'return' | 'reject' | 'refund' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [refundIssued, setRefundIssued] = useState(false)
+
+  async function issueRefund() {
+    setLoading('refund')
+    setActionError(null)
+    setSuccessMsg(null)
+    try {
+      const res = await fetch(`/api/admin/submissions/${submission.id}/refund`, {
+        method: 'POST',
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'Refund failed.')
+      setRefundIssued(true)
+      setSuccessMsg('Refund issued successfully.')
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setLoading(null)
+    }
+  }
 
   async function callAction(
     type: 'approve' | 'return' | 'reject',
@@ -207,6 +227,23 @@ export default function SubmissionDetail({ submission }: { submission: Submissio
             <div className="bg-surface border border-border rounded-lg p-4 space-y-2">
               <p className="text-xs font-semibold text-muted uppercase tracking-[0.08em] mb-2">Payment</p>
               <p className="text-xs text-muted font-mono break-all">{submission.stripe_payment_intent_id}</p>
+            </div>
+          )}
+
+          {/* Standalone refund — for rejected submissions where auto-refund may have failed */}
+          {status === 'rejected' && submission.stripe_charge_id && !refundIssued && (
+            <div className="bg-surface border border-border rounded-lg p-4">
+              <p className="text-sm font-semibold text-foreground mb-1">Issue refund</p>
+              <p className="text-xs text-muted mb-3">
+                If the automatic refund failed at rejection, use this to issue it manually.
+              </p>
+              <button
+                onClick={issueRefund}
+                disabled={loading !== null}
+                className="w-full py-2 rounded-md bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading === 'refund' ? 'Processing…' : 'Issue £10 Refund'}
+              </button>
             </div>
           )}
 

@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: 'Submit an Event',
   description:
     'Submit your Haringey event to This Is Haringey. Reach thousands of local people with a £10 listing.',
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default async function SubmitPage({

@@ -33,6 +33,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${cat.name} Events in Haringey`,
     description: CATEGORY_DESCRIPTIONS[category] ?? `Discover ${cat.name} events in Haringey.`,
+    twitter: {
+      card: "summary_large_image",
+    },
   };
 }
 

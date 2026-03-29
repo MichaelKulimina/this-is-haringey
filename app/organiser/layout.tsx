@@ -20,18 +20,13 @@ export default function OrganiserLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Admin-style sticky header */}
-      <header className="sticky top-0 z-40 bg-surface border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex flex-col leading-none">
-            <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-muted">
-              This Is
-            </span>
-            <span className="text-lg font-extrabold tracking-[-0.04em] text-foreground">
-              Haringey<span className="text-primary">.</span>
-            </span>
-          </Link>
+      {/* Organiser sub-header */}
+      <header className="sticky top-16 z-40 bg-surface border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-10">
+          {/* Section label */}
+          <span className="text-xs font-semibold tracking-[0.12em] uppercase text-muted">
+            My account
+          </span>
 
           {/* Nav */}
           <nav className="hidden sm:flex items-center gap-1">

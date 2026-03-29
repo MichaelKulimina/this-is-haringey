@@ -2,14 +2,14 @@ import { Resend } from 'resend'
 
 // Lazy singleton — only initialised at runtime, not at build time.
 let _resend: Resend | undefined
-function getResend(): Resend {
+export function getResend(): Resend {
   if (!_resend) {
     _resend = new Resend(process.env.EMAIL_API_KEY ?? 'missing')
   }
   return _resend
 }
 
-const FROM = process.env.EMAIL_FROM_ADDRESS ?? 'hello@thisisharingey.co.uk'
+const FROM = `This Is Haringey <${process.env.EMAIL_FROM_ADDRESS ?? 'hello@thisisharingey.co.uk'}>`
 const ADMIN = process.env.ADMIN_EMAIL ?? ''
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://thisisharingey.co.uk'
 
@@ -39,6 +39,9 @@ function wrap(body: string): string {
             <p style="margin:0;font-size:12px;color:#888;text-align:center;">
               This Is Haringey · Your guide to events in the London Borough of Haringey<br>
               Part of <a href="https://thisisharingey.co.uk" style="color:#E05A2B;">Haringey Borough of Culture 2027</a>
+            </p>
+            <p style="margin:10px 0 0;font-size:10px;color:#BBBBBB;text-align:center;letter-spacing:0.05em;">
+              POWERED BY <a href="https://kulimina.com/" style="color:#BBBBBB;text-decoration:none;font-weight:700;">KULIMINA</a>
             </p>
           </td>
         </tr>
@@ -239,4 +242,189 @@ export async function sendRejectionEmail(
   } catch (err) {
     console.error('[email] sendRejectionEmail failed:', err)
   }
+}
+
+// ─── Phase 6: Subscription emails ─────────────────────────────────────────────
+
+export async function sendSubscriptionVerification(
+  to: string,
+  verificationUrl: string,
+  categoryNames: string[]
+): Promise<void> {
+  const categoryList = categoryNames.join(', ')
+  try {
+    await getResend().emails.send({
+      from: FROM,
+      to,
+      subject: 'Confirm your This Is Haringey subscription',
+      html: wrap(`
+        ${h1('One quick step to confirm')}
+        ${p("You've signed up for a weekly digest of upcoming events in Haringey. Just click the button below to confirm your subscription.")}
+        <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #E5E2DB;border-radius:6px;margin-bottom:24px;">
+          <tr><td style="padding:12px 16px;background:#F7F5F0;border-bottom:1px solid #E5E2DB;font-size:13px;font-weight:600;color:#1A1A1A;">Your selected categories</td></tr>
+          <tr><td style="padding:12px 16px;font-size:14px;color:#444;">${categoryList}</td></tr>
+        </table>
+        <p style="margin:0 0 24px;">${cta(verificationUrl, 'Confirm my subscription →')}</p>
+        ${p('If you didn\'t sign up for this, you can safely ignore this email. The link expires if unused — nothing will happen to your inbox.')}
+        ${p('— The This Is Haringey team')}
+      `),
+    })
+  } catch (err) {
+    console.error('[email] sendSubscriptionVerification failed:', err)
+  }
+}
+
+// ─── Digest email builder (used by /api/send-digest) ──────────────────────────
+// Returns a raw HTML string; the cron route handles batched sending via Resend.
+
+export interface DigestEvent {
+  id: string
+  event_name: string
+  short_description: string
+  image_thumb_url: string | null
+  event_date_start: string
+  start_time: string
+  end_time: string | null
+  venue_name: string
+  borough_of_culture: boolean
+  category?: { name: string; slug: string }
+}
+
+function formatDigestDate(dateStr: string, timeStr: string): string {
+  const date = new Date(`${dateStr}T${timeStr}`)
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  }) + ' · ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+// Category placeholder colours — slightly deeper than the DLS tag tints for visual weight in email
+const PLACEHOLDER_COLOURS: Record<string, { bg: string; text: string }> = {
+  'arts-culture':   { bg: '#D9D4CB', text: '#5C5448' },
+  'music':          { bg: '#D9D4CB', text: '#5C5448' },
+  'community':      { bg: '#C4D0C6', text: '#2E4231' },
+  'food-drink':     { bg: '#E8C9BC', text: '#7A2E15' },
+  'learning-talks': { bg: '#D9D4CB', text: '#5C5448' },
+}
+
+function digestEventCard(event: DigestEvent): string {
+  const eventUrl = `${BASE_URL}/events/${event.id}`
+  const dateTime = formatDigestDate(event.event_date_start, event.start_time)
+
+  const slug = event.category?.slug ?? ''
+  const { bg, text } = PLACEHOLDER_COLOURS[slug] ?? { bg: '#D9D4CB', text: '#5C5448' }
+  const categoryLabel = (event.category?.name ?? 'Event').toUpperCase()
+
+  const imageBlock = event.image_thumb_url
+    ? `<img src="${event.image_thumb_url}" alt="${event.event_name}" width="540" style="width:100%;max-width:540px;height:auto;display:block;border-radius:4px 4px 0 0;" />`
+    : `<table cellpadding="0" cellspacing="0" width="100%" style="border-radius:4px 4px 0 0;background:${bg};">
+         <tr>
+           <td height="120" align="center" valign="middle"
+               style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:${text};padding:0;">
+             ${categoryLabel}
+           </td>
+         </tr>
+       </table>`
+
+  const bocBadge = event.borough_of_culture
+    ? `<span style="display:inline-block;padding:2px 8px;background:#EDE9FE;color:#5B21B6;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.05em;margin-bottom:8px;">Borough of Culture 2027</span><br>`
+    : ''
+
+  return `
+    <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #E5E2DB;border-radius:6px;margin-bottom:16px;overflow:hidden;">
+      <tr><td>${imageBlock}</td></tr>
+      <tr>
+        <td style="padding:16px;">
+          ${bocBadge}
+          <a href="${eventUrl}" style="font-size:16px;font-weight:700;color:#1A1A1A;text-decoration:none;letter-spacing:-0.02em;display:block;margin-bottom:4px;">${event.event_name}</a>
+          <p style="margin:0 0 6px;font-size:13px;color:#888;">${dateTime} · ${event.venue_name}</p>
+          <p style="margin:0 0 12px;font-size:14px;color:#444;line-height:1.5;">${event.short_description}</p>
+          <a href="${eventUrl}" style="font-size:13px;font-weight:600;color:#E05A2B;text-decoration:none;">See full details →</a>
+        </td>
+      </tr>
+    </table>`
+}
+
+export function buildDigestEmailHtml(
+  events: DigestEvent[],
+  categoryNames: string[],
+  weekLabel: string,
+  unsubscribeUrl: string,
+  manageUrl: string
+): string {
+  const categoryList = categoryNames.join(' & ')
+  const intro = `Here's what's coming up in <strong>${categoryList}</strong> — ${weekLabel}.`
+
+  // BoC highlight: first borough_of_culture event gets a featured banner above the list
+  const bocEvent = events.find((e) => e.borough_of_culture)
+  const bocBlock = bocEvent
+    ? `
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:2px solid #5B21B6;border-radius:8px;margin-bottom:24px;overflow:hidden;">
+        <tr>
+          <td style="background:#5B21B6;padding:10px 16px;">
+            <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:#EDE9FE;">Borough of Culture 2027 · Featured Event</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;">
+            <a href="${BASE_URL}/events/${bocEvent.id}" style="font-size:17px;font-weight:700;color:#1A1A1A;text-decoration:none;letter-spacing:-0.02em;display:block;margin-bottom:4px;">${bocEvent.event_name}</a>
+            <p style="margin:0 0 6px;font-size:13px;color:#888;">${formatDigestDate(bocEvent.event_date_start, bocEvent.start_time)} · ${bocEvent.venue_name}</p>
+            <p style="margin:0 0 12px;font-size:14px;color:#444;line-height:1.5;">${bocEvent.short_description}</p>
+            <a href="${BASE_URL}/events/${bocEvent.id}" style="font-size:13px;font-weight:600;color:#5B21B6;text-decoration:none;">Find out more →</a>
+          </td>
+        </tr>
+      </table>`
+    : ''
+
+  const eventCards = events.map(digestEventCard).join('')
+
+  const footer = `
+    <tr>
+      <td style="background:#F7F5F0;padding:16px 32px;border-top:1px solid #E5E2DB;">
+        <p style="margin:0 0 6px;font-size:12px;color:#888;text-align:center;">
+          This Is Haringey · Your guide to events in the London Borough of Haringey<br>
+          Part of <a href="https://thisisharingey.co.uk" style="color:#E05A2B;">Haringey Borough of Culture 2027</a>
+        </p>
+        <p style="margin:6px 0 0;font-size:12px;color:#888;text-align:center;">
+          <a href="${manageUrl}" style="color:#888;">Manage preferences</a>
+          &nbsp;·&nbsp;
+          <a href="${unsubscribeUrl}" style="color:#888;">Unsubscribe</a>
+        </p>
+        <p style="margin:10px 0 0;font-size:10px;color:#BBBBBB;text-align:center;letter-spacing:0.05em;">
+          POWERED BY <a href="https://kulimina.com/" style="color:#BBBBBB;text-decoration:none;font-weight:700;">KULIMINA</a>
+        </p>
+      </td>
+    </tr>`
+
+  // Build the full email by assembling the template manually (can't use wrap() as we
+  // need a custom footer with unsubscribe links replacing the standard one)
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F7F5F0;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F5F0;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:8px;overflow:hidden;max-width:600px;width:100%;">
+        <tr>
+          <td style="background:#E05A2B;padding:20px 32px;">
+            <p style="margin:0;font-size:11px;font-weight:600;letter-spacing:0.20em;text-transform:uppercase;color:#FFFFFF;">THIS IS</p>
+            <p style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.04em;color:#FFFFFF;">Haringey.</p>
+            <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.75);">What's On · ${weekLabel}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px;">
+            <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#1A1A1A;">What's On in Haringey</h1>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#444;">${intro}</p>
+            ${bocBlock}
+            ${eventCards}
+          </td>
+        </tr>
+        ${footer}
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
 }

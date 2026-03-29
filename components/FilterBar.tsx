@@ -35,14 +35,19 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
   }
 
   return (
-    <div className="bg-surface border-b border-border sticky top-16 z-40">
+    <div
+      role="search"
+      aria-label="Filter events"
+      className="bg-surface border-b border-border sticky top-16 z-40"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           {/* Category pills */}
           {!lockedCategoryId && (
-            <div className="flex flex-wrap gap-2 flex-1">
+            <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2 flex-1">
               <button
                 onClick={() => updateParam("category", "")}
+                aria-pressed={!currentCategory}
                 className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                   !currentCategory
                     ? "bg-primary text-white"
@@ -55,6 +60,7 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
                 <button
                   key={cat.id}
                   onClick={() => updateParam("category", cat.slug)}
+                  aria-pressed={currentCategory === cat.slug}
                   className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                     currentCategory === cat.slug
                       ? "bg-primary text-white"
@@ -69,7 +75,9 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
 
           {/* Date + Area dropdowns */}
           <div className="flex gap-2 flex-shrink-0">
+            <label className="sr-only" htmlFor="filter-date">Filter by date</label>
             <select
+              id="filter-date"
               value={currentDate}
               onChange={(e) => updateParam("date", e.target.value)}
               className="text-sm border border-border rounded-md px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"
@@ -81,7 +89,9 @@ export default function FilterBar({ categories, lockedCategoryId }: FilterBarPro
               ))}
             </select>
 
+            <label className="sr-only" htmlFor="filter-area">Filter by area</label>
             <select
+              id="filter-area"
               value={currentArea}
               onChange={(e) => updateParam("area", e.target.value)}
               className="text-sm border border-border rounded-md px-3 py-1.5 bg-background text-muted hover:border-primary focus:outline-none focus:border-primary transition-colors"

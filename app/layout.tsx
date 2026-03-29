@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import PageTracker from "@/components/PageTracker";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,6 +25,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_GB",
     siteName: "This Is Haringey",
+    // Default OG image — inherited by all pages without a specific image.
+    // Pages that define their own openGraph.images will override this.
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
@@ -100,9 +108,21 @@ function Footer() {
           </nav>
         </div>
 
-        <p className="text-xs text-muted mt-8 border-t border-border pt-6">
-          © {new Date().getFullYear()} This Is Haringey. All rights reserved.
-        </p>
+        <div className="mt-8 border-t border-border pt-6 flex items-center justify-between gap-4">
+          <p className="text-xs text-muted">
+            © {new Date().getFullYear()} This Is Haringey. All rights reserved.
+          </p>
+          <a
+            href="https://kulimina.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 opacity-60 hover:opacity-90 transition-opacity shrink-0 no-underline"
+          >
+            <span className="text-[10px] text-muted tracking-wide">Powered by</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/kulimina-wordmark.png" alt="KULIMINA" className="h-5" />
+          </a>
+        </div>
       </div>
     </footer>
   );
@@ -114,9 +134,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full ${inter.variable}`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
+        {/* Skip-to-content — WCAG 2.1 AA 2.4.1 */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-surface focus:text-foreground focus:rounded-md focus:border focus:border-border focus:shadow-md focus:text-sm focus:font-medium"
+        >
+          Skip to main content
+        </a>
+        <PageTracker />
         <Nav />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">{children}</main>
         <Footer />
+        <CookieConsent />
       </body>
     </html>
   );

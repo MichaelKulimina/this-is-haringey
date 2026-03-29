@@ -17,22 +17,26 @@ function AdminNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-surface border-b border-border">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <header className="sticky top-16 z-40 bg-surface border-b border-border">
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/admin/submissions" className="flex flex-col leading-none select-none">
-            <span className="text-[10px] font-semibold tracking-[0.20em] uppercase text-primary">
-              This Is
-            </span>
-            <span className="text-lg font-extrabold tracking-[-0.04em] text-foreground">
-              Haringey<span className="text-primary">.</span>
-            </span>
-          </Link>
-          <span className="hidden sm:block text-xs font-medium text-muted border-l border-border pl-3">
+          <span className="text-xs font-semibold tracking-[0.12em] uppercase text-muted">
             Admin
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            href="/admin/submissions"
+            className="text-xs text-muted hover:text-foreground transition-colors"
+          >
+            Submissions
+          </Link>
+          <Link
+            href="/admin/analytics"
+            className="text-xs text-muted hover:text-foreground transition-colors"
+          >
+            Analytics
+          </Link>
           <Link
             href="/"
             className="text-xs text-muted hover:text-foreground transition-colors"

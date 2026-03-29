@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import LoginForm from '@/components/organiser/LoginForm'
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function OrganiserLoginPage() {
         </p>
       </div>
       <div className="bg-surface border border-border rounded-lg p-6 sm:p-8">
-        <LoginForm />
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )

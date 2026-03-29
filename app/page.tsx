@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "What's On in Haringey",
   description:
     "Discover upcoming events in Haringey — arts, music, community, food, and learning. Your guide to what's happening in the borough.",
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 interface HomePageProps {

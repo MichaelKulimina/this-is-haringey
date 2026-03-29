@@ -221,6 +221,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                   href={event.ticket_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Book tickets for ${event.event_name} (opens in new tab)`}
                   className="inline-flex w-full items-center justify-center px-4 py-2.5 bg-primary text-white rounded-md text-sm font-semibold tracking-[-0.01em] hover:bg-primary-dark transition-colors"
                 >
                   Book tickets ↗

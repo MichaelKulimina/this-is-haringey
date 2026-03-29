@@ -101,6 +101,33 @@ body {
 }
 
 /* -----------------------------------------------
+   Focus-visible ring — WCAG 2.1 AA § 2.4.7
+   Visible focus is required for keyboard and
+   switch-access users. We use :focus-visible to
+   avoid showing the ring for mouse/pointer clicks
+   while keeping it for keyboard navigation.
+
+   Colour note: Terracotta #E05A2B on white has a
+   contrast ratio of ~4.4:1 — marginally below the
+   4.5:1 AA threshold for normal-weight text <18pt.
+   It meets the 3:1 threshold for large text (>=24px)
+   and non-text UI components. Primary buttons use
+   white text on Terracotta (same ~4.4:1) at 14px
+   semibold — borderline; consider #B84520 for strict
+   compliance on small-text CTA elements.
+   TODO a11y: evaluate #B84520 for CTA buttons
+   ----------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Remove outline for mouse/pointer users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* -----------------------------------------------
    Reduced motion (DLS § 8)
    ----------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
