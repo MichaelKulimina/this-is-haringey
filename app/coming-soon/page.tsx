@@ -60,7 +60,12 @@ function ComingSoonContent() {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
       zIndex: 9999,
       background: '#F7F5F0',
       display: 'flex',
@@ -75,7 +80,8 @@ function ComingSoonContent() {
         src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1740%2C51.5680%2C-0.0470%2C51.6260&layer=mapnik"
         style={{
           position: 'absolute',
-          inset: 0,
+          top: 0,
+          left: 0,
           width: '100%',
           height: '100%',
           border: 'none',
@@ -301,9 +307,27 @@ function ComingSoonContent() {
   )
 }
 
+const LoadingFallback = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0, right: 0, bottom: 0, left: 0,
+    width: '100vw', height: '100vh',
+    zIndex: 9999,
+    background: '#F7F5F0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, letterSpacing: '0.20em', textTransform: 'uppercase', color: '#E05A2B' }}>This Is</p>
+      <p style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '-0.04em', color: '#1A1A1A' }}>Haringey<span style={{ color: '#E05A2B' }}>.</span></p>
+    </div>
+  </div>
+)
+
 export default function ComingSoonPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingFallback />}>
       <ComingSoonContent />
     </Suspense>
   )
