@@ -134,7 +134,7 @@ export async function proxy(request: NextRequest) {
     `default-src 'self'`,
     // Allow unsafe-eval in dev — React requires it for call-stack reconstruction
     `script-src 'self' 'nonce-${nonce}' https://js.stripe.com${isDev ? " 'unsafe-eval'" : ''}`,
-    `frame-src https://js.stripe.com https://hooks.stripe.com`,
+    `frame-src https://js.stripe.com https://hooks.stripe.com https://www.openstreetmap.org`,
     `img-src 'self' data: blob: https://${SUPABASE_HOSTNAME}`,
     `connect-src 'self' https://${SUPABASE_HOSTNAME} https://api.stripe.com`,
     // unsafe-inline required for Tailwind v4 inline styles

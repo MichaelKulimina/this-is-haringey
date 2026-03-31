@@ -1,12 +1,8 @@
 'use client'
 
-import { useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
-function ComingSoonContent() {
-  const searchParams = useSearchParams()
-  const from = searchParams.get('from') ?? '/'
-
+export default function ComingSoonPage() {
   const [email, setEmail] = useState('')
   const [emailStatus, setEmailStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [emailError, setEmailError] = useState('')
@@ -48,7 +44,7 @@ function ComingSoonContent() {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        window.location.href = from
+        window.location.href = '/'
       } else {
         setPasswordStatus('error')
       }
@@ -96,7 +92,10 @@ function ComingSoonContent() {
       {/* Soft vignette overlay */}
       <div style={{
         position: 'absolute',
-        inset: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
         background: 'radial-gradient(ellipse at center, transparent 30%, rgba(247,245,240,0.7) 100%)',
         zIndex: 1,
         pointerEvents: 'none',
@@ -304,31 +303,5 @@ function ComingSoonContent() {
 
       </div>
     </div>
-  )
-}
-
-const LoadingFallback = () => (
-  <div style={{
-    position: 'fixed',
-    top: 0, right: 0, bottom: 0, left: 0,
-    width: '100vw', height: '100vh',
-    zIndex: 9999,
-    background: '#F7F5F0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }}>
-    <div style={{ textAlign: 'center' }}>
-      <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, letterSpacing: '0.20em', textTransform: 'uppercase', color: '#E05A2B' }}>This Is</p>
-      <p style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '-0.04em', color: '#1A1A1A' }}>Haringey<span style={{ color: '#E05A2B' }}>.</span></p>
-    </div>
-  </div>
-)
-
-export default function ComingSoonPage() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <ComingSoonContent />
-    </Suspense>
   )
 }
