@@ -12,6 +12,30 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const response = NextResponse.next()
 
+  // ── 0. Coming-soon gate ─────────────────────────────────────────────────────
+  // Active only when COMING_SOON=true. Set to any other value to open the site.
+  if (process.env.COMING_SOON === 'true') {
+    const isAllowed =
+      pathname.startsWith('/coming-soon') ||
+      pathname.startsWith('/api/waitlist') ||
+      pathname.startsWith('/api/preview-access') ||
+      pathname.startsWith('/_next') ||
+      pathname === '/favicon.ico' ||
+      pathname === '/icon.svg' ||
+      pathname === '/robots.txt' ||
+      pathname === '/kulimina-wordmark.png'
+
+    if (!isAllowed) {
+      const accessCookie = request.cookies.get('tih-preview-access')
+      if (accessCookie?.value !== 'granted') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/coming-soon'
+        url.searchParams.set('from', pathname)
+        return NextResponse.redirect(url)
+      }
+    }
+  }
+
   // ── 1. Admin route protection ───────────────────────────────────────────────
   // /admin/* routes require an admin JWT, except /admin/login itself.
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
