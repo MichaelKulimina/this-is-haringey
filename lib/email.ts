@@ -317,10 +317,10 @@ function digestEventCard(event: DigestEvent): string {
   const categoryLabel = (event.category?.name ?? 'Event').toUpperCase()
 
   const imageBlock = event.image_thumb_url
-    ? `<img src="${event.image_thumb_url}" alt="${event.event_name}" width="540" style="width:100%;max-width:540px;height:auto;display:block;border-radius:4px 4px 0 0;" />`
+    ? `<img src="${event.image_thumb_url}" alt="${event.event_name}" width="540" style="width:100%;max-width:540px;height:200px;object-fit:cover;display:block;border-radius:4px 4px 0 0;" />`
     : `<table cellpadding="0" cellspacing="0" width="100%" style="border-radius:4px 4px 0 0;background:${bg};">
          <tr>
-           <td height="120" align="center" valign="middle"
+           <td height="200" align="center" valign="middle"
                style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:${text};padding:0;">
              ${categoryLabel}
            </td>
