@@ -1,11 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
 function AdminNav() {
   const router = useRouter()
+  const pathname = usePathname()
+  const isLoginPage = pathname === '/admin/login'
 
   async function handleLogout() {
     const supabase = createBrowserClient(
@@ -24,33 +26,35 @@ function AdminNav() {
             Admin
           </span>
         </div>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/submissions"
-            className="text-xs text-muted hover:text-foreground transition-colors"
-          >
-            Submissions
-          </Link>
-          <Link
-            href="/admin/analytics"
-            className="text-xs text-muted hover:text-foreground transition-colors"
-          >
-            Analytics
-          </Link>
-          <Link
-            href="/"
-            className="text-xs text-muted hover:text-foreground transition-colors"
-            target="_blank"
-          >
-            View site ↗
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="text-xs font-medium text-muted hover:text-foreground transition-colors"
-          >
-            Log out
-          </button>
-        </div>
+        {!isLoginPage && (
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/submissions"
+              className="text-xs text-muted hover:text-foreground transition-colors"
+            >
+              Submissions
+            </Link>
+            <Link
+              href="/admin/analytics"
+              className="text-xs text-muted hover:text-foreground transition-colors"
+            >
+              Analytics
+            </Link>
+            <Link
+              href="/"
+              className="text-xs text-muted hover:text-foreground transition-colors"
+              target="_blank"
+            >
+              View site ↗
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-medium text-muted hover:text-foreground transition-colors"
+            >
+              Log out
+            </button>
+          </div>
+        )}
       </nav>
     </header>
   )

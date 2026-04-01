@@ -89,7 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           price_data: {
             currency: 'gbp',
-            unit_amount: 1000, // £10.00 in pence
+            unit_amount: parseInt(process.env.NEXT_PUBLIC_LISTING_FEE_PENCE ?? '1000', 10),
             product_data: {
               name: `Event listing — ${data.event_name}`,
               description: 'One-off listing fee for This Is Haringey',

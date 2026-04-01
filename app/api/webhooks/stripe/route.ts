@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     organiser_name: existing.organiser_name,
     organiser_email: existing.organiser_email,
     event_name: existing.event_name,
-    amount_pence: 1000,
+    amount_pence: parseInt(process.env.NEXT_PUBLIC_LISTING_FEE_PENCE ?? '1000', 10),
     currency: 'gbp',
     stripe_payment_intent_id: paymentIntentId,
     stripe_charge_id: chargeId || null,

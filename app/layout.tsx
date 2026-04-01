@@ -106,6 +106,9 @@ function Footer() {
             <Link href="/cookies" className="hover:text-foreground transition-colors">
               Cookie Policy
             </Link>
+            <Link href="/admin" className="hover:text-foreground transition-colors">
+              Admin
+            </Link>
           </nav>
         </div>
 

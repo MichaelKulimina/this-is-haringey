@@ -12,6 +12,10 @@ import { HARINGEY_AREAS } from '@/lib/types'
 import type { Category } from '@/lib/types'
 import ImageUploader from '@/components/ImageUploader'
 
+const LISTING_FEE_PENCE = parseInt(process.env.NEXT_PUBLIC_LISTING_FEE_PENCE ?? '1000', 10)
+const LISTING_FEE_DISPLAY = `£${(LISTING_FEE_PENCE / 100).toFixed(2)}`
+const LISTING_FEE_SHORT = `£${Math.round(LISTING_FEE_PENCE / 100)}`
+
 interface SubmitFormProps {
   categories: Category[]
   prefill?: {
@@ -600,7 +604,7 @@ export default function SubmitForm({ categories, prefill }: SubmitFormProps) {
           <div className="rounded-md border border-border bg-background p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-foreground">Listing fee</span>
-              <span className="text-sm font-bold text-foreground">£10.00</span>
+              <span className="text-sm font-bold text-foreground">{LISTING_FEE_DISPLAY}</span>
             </div>
             <p className="text-xs text-muted">
               One-time payment. If your listing is rejected, a full refund is issued automatically.
@@ -664,7 +668,7 @@ export default function SubmitForm({ categories, prefill }: SubmitFormProps) {
                 Preparing payment…
               </>
             ) : (
-              'Pay £10 & Submit →'
+              `Pay ${LISTING_FEE_SHORT} & Submit →`
             )}
           </button>
         )}
