@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import { headers } from "next/headers";
 import PageTracker from "@/components/PageTracker";
 import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
@@ -128,9 +129,13 @@ function Footer() {
   );
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') ?? ''
+  const isComingSoon = pathname === '/coming-soon'
+
   return (
     <html lang="en" className={`h-full ${inter.variable}`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
@@ -142,10 +147,10 @@ export default function RootLayout({
           Skip to main content
         </a>
         <PageTracker />
-        <Nav />
+        {!isComingSoon && <Nav />}
         <main id="main-content" className="flex-1">{children}</main>
-        <Footer />
-        <CookieConsent />
+        {!isComingSoon && <Footer />}
+        {!isComingSoon && <CookieConsent />}
       </body>
     </html>
   );

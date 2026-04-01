@@ -10,7 +10,14 @@ const SUPABASE_HOSTNAME = 'ykrgaigbnlqzvhquybdy.supabase.co'
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const response = NextResponse.next()
+
+  // Forward pathname as a request header so Server Components can read it
+  // via headers(). Response headers from middleware are NOT accessible to
+  // Server Components — only request headers passed through NextResponse.next()
+  // are available via the headers() helper.
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', pathname)
+  const response = NextResponse.next({ request: { headers: requestHeaders } })
 
   // ── 0. Coming-soon gate ─────────────────────────────────────────────────────
   // Active only when COMING_SOON=true. Set to any other value to open the site.

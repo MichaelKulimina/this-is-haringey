@@ -231,17 +231,21 @@ export default function ComingSoonPage() {
         }}>
           {!showPasswordForm ? (
             <button
+              type="button"
               onClick={() => setShowPasswordForm(true)}
               style={{
-                background: 'none',
-                border: 'none',
-                padding: 0,
+                width: '100%',
+                height: '40px',
+                padding: '0 16px',
+                background: 'transparent',
+                color: '#555',
+                border: '1px solid #D1CEC8',
+                borderRadius: '8px',
                 fontSize: '13px',
-                color: '#999',
+                fontWeight: 500,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
-                textDecoration: 'underline',
-                textUnderlineOffset: '3px',
+                letterSpacing: '-0.01em',
               }}
             >
               Have access? Enter password →
